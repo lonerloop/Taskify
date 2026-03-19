@@ -1,98 +1,88 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Modal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { 
+  HugeiconsIcon
+} from '@hugeicons/react-native';
+import { 
+  Search01Icon,
+  MoreVerticalIcon,
+  Menu01Icon,
+  Time01Icon
+} from '@hugeicons/core-free-icons';
+import { useTaskStore } from '@/store/useTaskStore';
+import { TaskItem } from '@/components/TaskItem';
+import { AddTaskModal } from '@/components/AddTaskModal';
+import { PomodoroTimer } from '@/components/PomodoroTimer';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useNavigation } from 'expo-router';
+import { DrawerActions } from '@react-navigation/native';
+import { Image } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function TasksScreen() {
+  const colorScheme = useColorScheme() ?? 'light';
+  const navigation = useNavigation();
+  const { tasks, selectedListId, lists } = useTaskStore();
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-export default function HomeScreen() {
+  const currentList = lists.find(l => l.id === selectedListId) || { name: 'Tasks' };
+  const filteredTasks = tasks.filter(t => t.list_id === selectedListId);
+
+  const renderHeader = () => (
+    <View 
+      style={{ 
+        paddingTop: 8, 
+        paddingBottom: 24, 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        backgroundColor: 'black'
+      }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+        <View style={{ width: '20%', alignItems: 'center' }}>
+          <TouchableOpacity 
+            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+          >
+            <HugeiconsIcon icon={Menu01Icon} size={28} color="#ffffff" />
+          </TouchableOpacity>
+        </View>
+        <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white', letterSpacing: -0.5, marginLeft: 4 }}>
+          {currentList.name}
+        </Text>
+      </View>
+      <View style={{ width: '20%', alignItems: 'center' }}>
+        <TouchableOpacity>
+          <HugeiconsIcon icon={MoreVerticalIcon} size={26} color="#ffffff" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
+    <View style={{ flex: 1, backgroundColor: 'black' }}>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <FlatList
+          data={filteredTasks}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <TaskItem task={item} />}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 120 }}
+          ListEmptyComponent={
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: -100 }}>
+              <Image 
+                source={{ uri: 'file:///C:/Users/conta/.gemini/antigravity/brain/3d2a0b34-6bb8-4e3c-aa88-67b8f6c8a3db/empty_state_moon_illustration_1773844585386.png' }}
+                style={{ width: 320, height: 320, marginBottom: -10 }}
+                resizeMode="contain"
               />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+              <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white', marginBottom: 12 }}>No tasks today</Text>
+              <Text style={{ fontSize: 18, fontWeight: '500', color: '#71717a' }}>It's late, rest early</Text>
+            </View>
+          }
+        />
+      </SafeAreaView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
