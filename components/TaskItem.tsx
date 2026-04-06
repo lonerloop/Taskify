@@ -6,7 +6,10 @@ import {
 import { 
   CheckmarkCircle02Icon,
   CircleIcon,
-  Flag01Icon
+  Flag01Icon,
+  RepeatIcon,
+  AlarmClockIcon,
+  CheckmarkSquare02Icon
 } from '@hugeicons/core-free-icons';
 import { Task, useTaskStore, Priority } from '@/store/useTaskStore';
 import { Colors } from '@/constants/theme';
@@ -14,6 +17,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 
 interface TaskItemProps {
   task: Task;
+  onPress?: (task: Task) => void;
 }
 
 const priorityColors: Record<Priority, string> = {
@@ -25,26 +29,31 @@ const priorityColors: Record<Priority, string> = {
 
 import { useRouter } from 'expo-router';
 
-import Animated, { FadeInRight, FadeOutLeft, LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
-export function TaskItem({ task }: TaskItemProps) {
+export function TaskItem({ task, onPress }: TaskItemProps) {
   const colorScheme = useColorScheme() ?? 'light';
   const toggleTask = useTaskStore((state) => state.toggleTask);
   const router = useRouter();
 
   return (
     <Animated.View 
-      entering={FadeInRight.duration(400)}
-      exiting={FadeOutLeft.duration(300)}
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(200)}
       layout={LinearTransition}
     >
       <TouchableOpacity 
         activeOpacity={0.7}
-        onPress={() => router.push(`/task/${task.id}`)}
-        className="mx-4 my-1.5 p-4 bg-white dark:bg-[#0a0a0a] rounded-3xl flex-row items-center border border-zinc-100 dark:border-zinc-900 shadow-sm"
+        onPress={() => onPress ? onPress(task) : router.push(`/task/${task.id}`)}
+        style={{ 
+          flexDirection: 'row', 
+          alignItems: 'center', 
+          paddingVertical: 12, 
+          paddingHorizontal: 16 
+        }}
       >
         <TouchableOpacity 
-          className="mr-4"
+          style={{ marginRight: 20 }}
           onPress={(e) => {
             e.stopPropagation();
             toggleTask(task.id);
@@ -53,37 +62,57 @@ export function TaskItem({ task }: TaskItemProps) {
           <View style={{ 
             width: 24, 
             height: 24, 
-            borderRadius: 12, 
-            borderWidth: 2, 
-            borderColor: task.completed ? '#10b981' : priorityColors[task.priority],
-            backgroundColor: task.completed ? '#10b981' : 'transparent',
+            borderRadius: 6, 
+            borderWidth: task.completed ? 0 : 2, 
+            borderColor: task.completed ? 'transparent' : priorityColors[task.priority],
+            backgroundColor: 'transparent',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            {/* No icon - pure geometric state */}
+            {task.completed ? (
+              <HugeiconsIcon icon={CheckmarkSquare02Icon} size={24} color="#52525b" />
+            ) : null}
           </View>
         </TouchableOpacity>
         
-        <View className="flex-1">
+        <View style={{ flex: 1, marginRight: 12 }}>
           <Text 
-            className={`text-base font-semibold dark:text-white ${task.completed ? 'line-through text-zinc-400 dark:text-zinc-600' : ''}`}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={{ 
+              fontSize: 16, 
+              fontWeight: '500', 
+              color: task.completed ? '#52525b' : 'white'
+            }}
           >
             {task.title}
           </Text>
-          {task.due_date && (
-            <Text className="text-xs text-zinc-400 font-medium mt-1">{task.due_date}</Text>
-          )}
         </View>
 
-        {task.priority !== 'none' && !task.completed && (
-          <View style={{ 
-            width: 4, 
-            height: 20, 
-            borderRadius: 2, 
-            backgroundColor: priorityColors[task.priority],
-            marginLeft: 12
-          }} />
+        {(task.time !== 'None' || (task.reminders && task.reminders.length > 0) || (task.repeat && task.repeat !== 'None')) && (
+          <View style={{ alignItems: 'flex-end', minWidth: 60 }}>
+            <Text 
+              style={{ 
+                fontSize: 12, 
+                fontWeight: '600', 
+                color: task.completed ? '#3f3f46' : (task.due_date === 'Yesterday' ? '#ef4444' : '#3b82f6'),
+                textTransform: 'uppercase'
+              }}
+            >
+              {task.time !== 'None' ? task.time : task.due_date}
+            </Text>
+            <View style={{ flexDirection: 'row', marginTop: 2, gap: 4 }}>
+              {task.repeat && task.repeat !== 'None' && (
+                <HugeiconsIcon icon={RepeatIcon} size={12} color={task.completed ? '#3f3f46' : '#71717a'} />
+              )}
+              {task.reminders && task.reminders.length > 0 && (
+                <HugeiconsIcon icon={AlarmClockIcon} size={12} color={task.completed ? '#3f3f46' : '#71717a'} />
+              )}
+            </View>
+          </View>
         )}
+
+
       </TouchableOpacity>
     </Animated.View>
   );

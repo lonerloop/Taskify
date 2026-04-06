@@ -9,6 +9,9 @@ export interface Task {
   completed: boolean;
   priority: Priority;
   due_date?: string;
+  time?: string;
+  repeat?: any;
+  reminders?: any[];
   list_id?: string;
   tags?: string[];
   created_at: string;
@@ -75,7 +78,7 @@ export const useTaskStore = create<TaskState>((set) => ({
   isLoading: false,
   error: null,
   setTasks: (tasks) => set({ tasks }),
-  addTask: (task) => set((state) => ({ tasks: [task, ...state.tasks] })),
+  addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
   toggleTask: (id) =>
     set((state) => ({
       tasks: state.tasks.map((t) =>

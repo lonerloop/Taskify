@@ -11,21 +11,25 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 export default function RootLayout() {
   const colorScheme = useColorScheme() ?? 'light';
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Drawer
-        drawerContent={() => <Sidebar />}
-        screenOptions={{
-          headerShown: false,
-          drawerType: 'front',
-        }}
-      >
-        <Drawer.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Drawer>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Drawer
+          drawerContent={() => <Sidebar />}
+          screenOptions={{
+            headerShown: false,
+            drawerType: 'front',
+          }}
+        >
+          <Drawer.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Drawer>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
