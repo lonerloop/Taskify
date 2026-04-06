@@ -27,8 +27,8 @@ export default function RootLayout() {
           <Stack.Screen 
             name="tab-bar-edit" 
             options={{ 
-              animation: 'slide_from_bottom',
-              animationDuration: 250,
+              presentation: 'modal',
+              headerShown: false,
             }} 
           />
         </Stack>

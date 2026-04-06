@@ -30,6 +30,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import { AddTaskModal } from '@/components/AddTaskModal';
 import { useTabStore } from '@/store/useTabStore';
+import { BottomNavbar } from '@/components/BottomNavbar';
 
 const ICON_MAP: Record<string, any> = {
   CheckmarkSquare02Icon,
@@ -43,29 +44,6 @@ const ICON_MAP: Record<string, any> = {
   Timer01Icon
 };
 
-const CustomTabIcon = ({ 
-  icon, 
-  focused, 
-  label 
-}: { 
-  icon: any; 
-  focused: boolean; 
-  label: string 
-}) => {
-  return (
-    <View style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}>
-      <HugeiconsIcon 
-        icon={icon} 
-        size={28} 
-        color={focused ? '#3b82f6' : '#71717a'} 
-      />
-      {focused && (
-        <View style={{ position: 'absolute', bottom: -1, width: 6, height: 6, borderRadius: 3, backgroundColor: '#3b82f6' }} />
-      )}
-    </View>
-  );
-};
-
 export default function TabLayout() {
   const router = useRouter();
   const pathname = usePathname();
@@ -74,10 +52,12 @@ export default function TabLayout() {
   const expansion = useSharedValue(0);
   const fabScale = useSharedValue(1);
 
-  const { tabs } = useTabStore();
+  const { tabs, maxTabs } = useTabStore();
   const enabledTabs = tabs.filter(t => t.enabled);
-  const mainTabs = enabledTabs.slice(0, 4);
-  const moreTabs = enabledTabs.slice(4);
+  
+  // Cutoff is maxTabs - 1 to account for the "More" button
+  const mainTabs = enabledTabs.slice(0, maxTabs - 1);
+  const moreTabs = enabledTabs.slice(maxTabs - 1);
 
   const toggleExpanded = () => {
     const nextState = !isExpanded;
@@ -128,16 +108,6 @@ export default function TabLayout() {
       borderTopRightRadius: 15,
       padding: 0,
       zIndex: 90,
-    };
-  });
-
-  const animatedTabBarStyle = useAnimatedStyle(() => {
-    return {
-      backgroundColor: interpolateColor(
-        expansion.value,
-        [0, 1],
-        ['transparent', '#0a0a0a']
-      ),
     };
   });
 
@@ -225,46 +195,11 @@ export default function TabLayout() {
       </Animated.View>
 
       {/* Fixed Bottom Tab Bar */}
-      <Animated.View style={[animatedTabBarStyle, { 
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: 74,
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        paddingBottom: 15,
-        zIndex: 100,
-      }]}>
-        {mainTabs.map((tab, index) => {
-          const routes = ['/', '/calendar', '/habits', '/focus'];
-          const isFocused = pathname === routes[index];
-          
-          return (
-            <View key={tab.id} style={{ width: '20%', alignItems: 'center' }}>
-              <TouchableOpacity onPress={() => router.push(routes[index] as any)}>
-                <CustomTabIcon icon={ICON_MAP[tab.iconName]} focused={isFocused} label={tab.title} />
-              </TouchableOpacity>
-            </View>
-          );
-        })}
-
-        {/* More Button */}
-        <View style={{ width: '20%', alignItems: 'center' }}>
-          <TouchableOpacity 
-            onPress={toggleExpanded}
-            activeOpacity={0.7}
-          >
-            <View className="p-2">
-              <HugeiconsIcon 
-                icon={MoreHorizontalIcon} 
-                size={28} 
-                color={isExpanded ? '#3b82f6' : '#71717a'} 
-              />
-            </View>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
+      <BottomNavbar 
+        isExpanded={isExpanded}
+        onToggleExpanded={toggleExpanded}
+        expansion={expansion}
+      />
 
       {/* Floating Action Button (FAB) */}
       <TouchableOpacity 

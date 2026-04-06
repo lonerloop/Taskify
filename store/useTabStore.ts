@@ -10,12 +10,16 @@ export interface TabItem {
 
 interface TabState {
   tabs: TabItem[];
+  maxTabs: number;
   enableTab: (id: string) => void;
   disableTab: (id: string) => void;
   reorderTabs: (newTabs: TabItem[]) => void;
+  moveTab: (fromIndex: number, toIndex: number) => void;
+  setMaxTabs: (num: number) => void;
 }
 
 export const useTabStore = create<TabState>((set) => ({
+  maxTabs: 5,
   tabs: [
     { 
       id: 'tasks', 
@@ -74,11 +78,24 @@ export const useTabStore = create<TabState>((set) => ({
       enabled: false 
     },
   ],
-  enableTab: (id) => set((state) => ({
-    tabs: state.tabs.map(t => t.id === id ? { ...t, enabled: true } : t)
-  })),
-  disableTab: (id) => set((state) => ({
-    tabs: state.tabs.map(t => t.id === id ? { ...t, enabled: false } : t)
-  })),
+  enableTab: (id) => set((state) => {
+    const tab = state.tabs.find(t => t.id === id);
+    if (!tab) return state;
+    const others = state.tabs.filter(t => t.id !== id);
+    return { tabs: [...others, { ...tab, enabled: true }] };
+  }),
+  disableTab: (id) => set((state) => {
+    const tab = state.tabs.find(t => t.id === id);
+    if (!tab) return state;
+    const others = state.tabs.filter(t => t.id !== id);
+    return { tabs: [...others, { ...tab, enabled: false }] };
+  }),
   reorderTabs: (newTabs) => set({ tabs: newTabs }),
+  moveTab: (fromIndex, toIndex) => set((state) => {
+    const newTabs = [...state.tabs];
+    const [movedItem] = newTabs.splice(fromIndex, 1);
+    newTabs.splice(toIndex, 0, movedItem);
+    return { tabs: newTabs };
+  }),
+  setMaxTabs: (num) => set({ maxTabs: num }),
 }));
