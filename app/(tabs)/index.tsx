@@ -29,15 +29,15 @@ const GroupCard = ({ item, isExpanded, onToggle, onTaskPress }: GroupCardProps) 
   // Smooth icon rotation (Fast & Smooth, not springy)
   const animatedIconStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ rotate: withTiming(isExpanded ? '90deg' : '0deg', { duration: 200, easing: Easing.out(Easing.quad) }) }]
+      transform: [{ rotate: withTiming(isExpanded ? '90deg' : '0deg', { duration: 150, easing: Easing.out(Easing.quad) }) }]
     };
   });
 
   return (
     <Animated.View
-      entering={FadeIn.duration(300)}
-      exiting={FadeOut.duration(300)}
-      layout={LinearTransition.duration(350)}
+      entering={FadeIn.duration(250)}
+      exiting={FadeOut.duration(250)}
+      layout={LinearTransition.duration(300)}
       style={{ backgroundColor: '#1a1a1a', borderRadius: 15, paddingVertical: 14, marginHorizontal: 16, marginBottom: 16, overflow: 'hidden' }}
     >
       <TouchableOpacity
@@ -67,7 +67,7 @@ const GroupCard = ({ item, isExpanded, onToggle, onTaskPress }: GroupCardProps) 
       </TouchableOpacity>
 
       {isExpanded && (
-        <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)}>
+        <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(150)}>
           {item.tasks.map((task: any) => <TaskItem key={task.id} task={task} onPress={onTaskPress} />)}
         </Animated.View>
       )}

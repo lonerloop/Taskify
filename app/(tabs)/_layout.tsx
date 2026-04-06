@@ -256,13 +256,13 @@ export default function TabLayout() {
 
       {/* Floating Action Button (FAB) - Restored for empty state reference */}
       <TouchableOpacity 
-        activeOpacity={0.8}
+        activeOpacity={0.6}
         onLongPress={() => {}} // dummy for ripple
         onPressIn={() => {
-          fabScale.value = withSpring(0.9, { damping: 10, stiffness: 300 });
+          fabScale.value = withSpring(0.82, { damping: 12, stiffness: 400 });
         }}
         onPressOut={() => {
-          fabScale.value = withSpring(1, { damping: 10, stiffness: 300 });
+          fabScale.value = withSpring(1, { damping: 12, stiffness: 400 });
         }}
         onPress={() => setIsAddTaskVisible(true)}
         style={{ 
