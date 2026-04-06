@@ -40,7 +40,7 @@ export default function MoreScreen() {
           <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">App Settings</Text>
           <MenuItem icon={Shield01Icon} label="Privacy & Security" color="#10b981" />
           <MenuItem icon={Settings03Icon} label="General Settings" color="#64748b" />
-          <MenuItem icon={InformationCircleIcon} label="About TickTick" color="#8b5cf6" />
+          <MenuItem icon={InformationCircleIcon} label="About Taskify" color="#8b5cf6" />
         </View>
 
         <TouchableOpacity className="flex-row items-center py-4 mt-4">

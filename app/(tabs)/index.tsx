@@ -35,7 +35,9 @@ const GroupCard = ({ item, isExpanded, onToggle, onTaskPress }: GroupCardProps) 
 
   return (
     <Animated.View
-      layout={LinearTransition.duration(250)}
+      entering={FadeIn.duration(300)}
+      exiting={FadeOut.duration(300)}
+      layout={LinearTransition.duration(350)}
       style={{ backgroundColor: '#1a1a1a', borderRadius: 15, paddingVertical: 14, marginHorizontal: 16, marginBottom: 16, overflow: 'hidden' }}
     >
       <TouchableOpacity

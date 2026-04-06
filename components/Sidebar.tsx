@@ -49,7 +49,7 @@ export default function Sidebar() {
   return (
     <SafeAreaView className="flex-1 bg-white dark:bg-slate-900">
       <View className="px-6 py-8">
-        <Text className="text-2xl font-bold dark:text-white tracking-tight">TickTick</Text>
+        <Text className="text-2xl font-bold dark:text-white tracking-tight">Taskify</Text>
       </View>
 
       <ScrollView className="flex-1">
