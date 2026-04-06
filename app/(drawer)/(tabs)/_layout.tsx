@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, useRouter } from 'expo-router';
+import { Tabs, useRouter, usePathname } from 'expo-router';
 import { View, Text, TouchableOpacity, Platform, BackHandler, TouchableWithoutFeedback } from 'react-native';
 import Animated, { 
   useAnimatedStyle, 
   useSharedValue, 
   withSpring, 
+  withTiming,
   interpolate,
   interpolateColor,
   Extrapolate,
@@ -22,9 +23,25 @@ import {
   MoreHorizontalIcon,
   Settings03Icon,
   CalendarFavorite02Icon,
-  Add01Icon
+  Add01Icon,
+  Search01Icon,
+  Timer01Icon,
+  Grid02Icon
 } from '@hugeicons/core-free-icons';
 import { AddTaskModal } from '@/components/AddTaskModal';
+import { useTabStore } from '@/store/useTabStore';
+
+const ICON_MAP: Record<string, any> = {
+  CheckmarkSquare02Icon,
+  Calendar02Icon,
+  Target01Icon,
+  Time01Icon,
+  Settings03Icon,
+  CalendarFavorite02Icon,
+  Grid02Icon,
+  Search01Icon,
+  Timer01Icon
+};
 
 const CustomTabIcon = ({ 
   icon, 
@@ -51,17 +68,23 @@ const CustomTabIcon = ({
 
 export default function TabLayout() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAddTaskVisible, setIsAddTaskVisible] = useState(false);
   const expansion = useSharedValue(0);
   const fabScale = useSharedValue(1);
+
+  const { tabs } = useTabStore();
+  const enabledTabs = tabs.filter(t => t.enabled);
+  const mainTabs = enabledTabs.slice(0, 4);
+  const moreTabs = enabledTabs.slice(4);
 
   const toggleExpanded = () => {
     const nextState = !isExpanded;
     setIsExpanded(nextState);
     expansion.value = withSpring(nextState ? 1 : 0, {
       damping: 38, 
-      stiffness: 350, // Ultra-snappy "Good Fast" motion
+      stiffness: 350,
       overshootClamping: true,
     });
   };
@@ -118,6 +141,15 @@ export default function TabLayout() {
     };
   });
 
+  const animatedFabStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { scale: withTiming(isExpanded ? 0 : 1, { duration: 200 }) }
+      ],
+      opacity: withTiming(isExpanded ? 0 : 1, { duration: 200 })
+    };
+  }, [isExpanded]);
+
   return (
     <View style={{ flex: 1, backgroundColor: '#000000' }}>
       <Tabs
@@ -133,7 +165,7 @@ export default function TabLayout() {
         <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
       </Tabs>
 
-      {/* Backdrop for Expanded Tools - Click outside to close */}
+      {/* Backdrop for Expanded Tools */}
       {isExpanded && (
         <TouchableWithoutFeedback onPress={toggleExpanded}>
           <Animated.View 
@@ -152,40 +184,35 @@ export default function TabLayout() {
         </TouchableWithoutFeedback>
       )}
 
-      {/* Expanded Tools Panel - Definitive 100px drawer with extra clearance */}
-      <Animated.View style={[animatedContentStyle, { height: 100, justifyContent: 'space-between', paddingVertical: 12 }]}>
+      {/* Expanded Tools Panel */}
+      <Animated.View style={[animatedContentStyle, { height: moreTabs.length > 4 ? 200 : 100, justifyContent: 'space-between', paddingVertical: 12 }]}>
         {/* Header Row */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center', paddingHorizontal: 20 }}>
           <Text style={{ color: '#52525b', fontSize: 13, fontWeight: '700', letterSpacing: 0.5 }}>MORE</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => { toggleExpanded(); router.push('/tab-bar-edit'); }}>
             <Text style={{ color: '#3b82f6', fontSize: 13, fontWeight: '600' }}>Edit</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Icons Row - Surgically aligned grid, balanced clearance */}
+        {/* Icons Grid */}
         <View style={{ 
           flexDirection: 'row', 
+          flexWrap: 'wrap',
           width: '100%',
           paddingBottom: 8
         }}>
-          {/* Slot 1: Aligned exactly with Tasks */}
-          <View style={{ width: '20%', alignItems: 'center', justifyContent: 'center' }}>
-            <TouchableOpacity className="p-2" onPress={() => {/* Navigate */}}>
-              <HugeiconsIcon icon={CalendarFavorite02Icon} size={28} color="#71717a" />
-            </TouchableOpacity>
-          </View>
-          
-          {/* Slot 2: Aligned exactly with Calendar */}
-          <View style={{ width: '20%', alignItems: 'center', justifyContent: 'center' }}>
-            <TouchableOpacity className="p-2" onPress={() => {/* Navigate */}}>
-              <HugeiconsIcon icon={Settings03Icon} size={28} color="#71717a" />
-            </TouchableOpacity>
-          </View>
-          
-          {/* Slots 3, 4, 5: Empty Placeholders */}
-          <View style={{ width: '20%' }} />
-          <View style={{ width: '20%' }} />
-          <View style={{ width: '20%' }} />
+          {moreTabs.map((tab) => (
+            <View key={tab.id} style={{ width: '20%', alignItems: 'center', justifyContent: 'center', marginVertical: 8 }}>
+              <TouchableOpacity className="p-2" onPress={() => toggleExpanded()}>
+                <HugeiconsIcon icon={ICON_MAP[tab.iconName] || Search01Icon} size={28} color="#71717a" />
+              </TouchableOpacity>
+            </View>
+          ))}
+          {moreTabs.length === 0 && (
+            <View style={{ width: '100%', alignItems: 'center', paddingVertical: 10 }}>
+              <Text style={{ color: '#3f3f46', fontSize: 12 }}>No more items</Text>
+            </View>
+          )}
         </View>
 
         {/* Floating Separator */}
@@ -197,7 +224,7 @@ export default function TabLayout() {
         }} />
       </Animated.View>
 
-      {/* Fixed Bottom Tab Bar - Identical 20% slot grid */}
+      {/* Fixed Bottom Tab Bar */}
       <Animated.View style={[animatedTabBarStyle, { 
         position: 'absolute',
         bottom: 0,
@@ -209,35 +236,20 @@ export default function TabLayout() {
         paddingBottom: 15,
         zIndex: 100,
       }]}>
-        {/* Slot 1: Tasks */}
-        <View style={{ width: '20%', alignItems: 'center' }}>
-          <TouchableOpacity onPress={() => router.push('/')}>
-            <CustomTabIcon icon={CheckmarkSquare02Icon} focused={true} label="Tasks" />
-          </TouchableOpacity>
-        </View>
+        {mainTabs.map((tab, index) => {
+          const routes = ['/', '/calendar', '/habits', '/focus'];
+          const isFocused = pathname === routes[index];
+          
+          return (
+            <View key={tab.id} style={{ width: '20%', alignItems: 'center' }}>
+              <TouchableOpacity onPress={() => router.push(routes[index] as any)}>
+                <CustomTabIcon icon={ICON_MAP[tab.iconName]} focused={isFocused} label={tab.title} />
+              </TouchableOpacity>
+            </View>
+          );
+        })}
 
-        {/* Slot 2: Calendar */}
-        <View style={{ width: '20%', alignItems: 'center' }}>
-          <TouchableOpacity onPress={() => router.push('/calendar')}>
-            <CustomTabIcon icon={Calendar02Icon} focused={false} label="Calendar" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Slot 3: Habits */}
-        <View style={{ width: '20%', alignItems: 'center' }}>
-          <TouchableOpacity onPress={() => router.push('/habits')}>
-            <CustomTabIcon icon={Target01Icon} focused={false} label="Habits" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Slot 4: Focus */}
-        <View style={{ width: '20%', alignItems: 'center' }}>
-          <TouchableOpacity onPress={() => router.push('/focus')}>
-            <CustomTabIcon icon={Time01Icon} focused={false} label="Focus" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Slot 5: More */}
+        {/* More Button */}
         <View style={{ width: '20%', alignItems: 'center' }}>
           <TouchableOpacity 
             onPress={toggleExpanded}
@@ -254,35 +266,31 @@ export default function TabLayout() {
         </View>
       </Animated.View>
 
-      {/* Floating Action Button (FAB) - Restored for empty state reference */}
+      {/* Floating Action Button (FAB) */}
       <TouchableOpacity 
-        activeOpacity={0.6}
-        onLongPress={() => {}} // dummy for ripple
-        onPressIn={() => {
-          fabScale.value = withSpring(0.82, { damping: 12, stiffness: 400 });
-        }}
-        onPressOut={() => {
-          fabScale.value = withSpring(1, { damping: 12, stiffness: 400 });
-        }}
+        activeOpacity={0.7}
         onPress={() => setIsAddTaskVisible(true)}
         style={{ 
           position: 'absolute', 
           bottom: 100, 
           right: 20, 
           zIndex: 1000,
-          opacity: isExpanded ? 0 : 1,
           pointerEvents: isExpanded ? 'none' : 'auto'
         }}
       >
-        <Animated.View style={[{
-          width: 56, 
-          height: 56, 
-          backgroundColor: '#3b82f6', 
-          borderRadius: 28, 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          transform: [{ scale: fabScale }]
-        }]}>
+        <Animated.View 
+          style={[
+            {
+              width: 56, 
+              height: 56, 
+              backgroundColor: '#3b82f6', 
+              borderRadius: 28, 
+              alignItems: 'center', 
+              justifyContent: 'center',
+            },
+            animatedFabStyle
+          ]}
+        >
           <HugeiconsIcon icon={Add01Icon} size={32} color="#ffffff" />
         </Animated.View>
       </TouchableOpacity>

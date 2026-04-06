@@ -38,9 +38,9 @@ export function TaskItem({ task, onPress }: TaskItemProps) {
 
   return (
     <Animated.View 
-      entering={FadeIn.duration(250)}
-      exiting={FadeOut.duration(250)}
-      layout={LinearTransition.duration(300)}
+      entering={FadeIn.duration(150)}
+      exiting={FadeOut.duration(150)}
+      layout={LinearTransition.duration(200)}
     >
       <TouchableOpacity 
         activeOpacity={0.7}

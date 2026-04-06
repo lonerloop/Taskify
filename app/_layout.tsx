@@ -1,17 +1,15 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Drawer } from 'expo-router/drawer';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import '../global.css';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import Sidebar from '@/components/Sidebar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: '(drawer)',
 };
-
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme() ?? 'light';
@@ -19,15 +17,21 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Drawer
-          drawerContent={() => <Sidebar />}
+        <Stack
           screenOptions={{
             headerShown: false,
-            drawerType: 'front',
+            animation: 'fade', // Main transition is fade, sub-screens slide
           }}
         >
-          <Drawer.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Drawer>
+          <Stack.Screen name="(drawer)" />
+          <Stack.Screen 
+            name="tab-bar-edit" 
+            options={{ 
+              animation: 'slide_from_bottom',
+              animationDuration: 250,
+            }} 
+          />
+        </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>
     </GestureHandlerRootView>

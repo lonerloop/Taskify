@@ -77,8 +77,8 @@ export function TaskInfoModal({ isVisible, onClose, taskId }: TaskInfoModalProps
       <View style={styles.overlay}>
         <TouchableWithoutFeedback onPress={onClose}>
           <Animated.View
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(200)}
+            entering={FadeIn.duration(150)}
+            exiting={FadeOut.duration(150)}
             style={StyleSheet.absoluteFill}
           >
             <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
@@ -87,8 +87,8 @@ export function TaskInfoModal({ isVisible, onClose, taskId }: TaskInfoModalProps
         </TouchableWithoutFeedback>
 
         <Animated.View
-          entering={SlideInDown.duration(300)}
-          exiting={SlideOutDown.duration(250)}
+          entering={SlideInDown.duration(200)}
+          exiting={SlideOutDown.duration(150)}
           style={[styles.modalContent, { height: isExpanded ? 480 : 380 }]}
         >
           {isExpanded && (

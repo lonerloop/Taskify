@@ -104,8 +104,8 @@ export function AddTaskModal({ isVisible, onClose }: AddTaskModalProps) {
       <View style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={onClose}>
           <Animated.View
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(200)}
+            entering={FadeIn.duration(150)}
+            exiting={FadeOut.duration(150)}
             style={StyleSheet.absoluteFill}
           >
             <BlurView intensity={25} tint="dark" style={StyleSheet.absoluteFill} />
@@ -120,8 +120,8 @@ export function AddTaskModal({ isVisible, onClose }: AddTaskModalProps) {
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <Animated.View
-              entering={SlideInDown.duration(300)}
-              exiting={SlideOutDown.duration(300)}
+              entering={SlideInDown.duration(220)}
+              exiting={SlideOutDown.duration(180)}
               style={{
                 backgroundColor: '#1a1a1a',
                 borderTopLeftRadius: 15,
