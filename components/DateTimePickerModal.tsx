@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, Platform, Pressable, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, Platform, Pressable, Dimensions, TouchableWithoutFeedback , ScrollView } from 'react-native';
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { 
   FadeIn, 
@@ -34,6 +34,7 @@ import {
   ChatQuestion01Icon
 } from '@hugeicons/core-free-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
@@ -974,6 +975,7 @@ const PickerColumn = React.memo(({ data, selectedValue, onValueChange, width = 6
         </View>
     );
 });
+PickerColumn.displayName = 'PickerColumn';
 
 const PickerItem = React.memo(({ item, index, scrollY, ITEM_HEIGHT }: { item: string, index: number, scrollY: any, ITEM_HEIGHT: number }) => {
     const animatedStyle = useAnimatedStyle(() => {
@@ -1030,6 +1032,7 @@ const PickerItem = React.memo(({ item, index, scrollY, ITEM_HEIGHT }: { item: st
         </Animated.View>
     );
 });
+PickerItem.displayName = 'PickerItem';
 
 function RepeatModal({ isVisible, onClose, onSelect, selectedRepeat, selectedDate }: {
     isVisible: boolean,
@@ -1147,8 +1150,6 @@ function RepeatTypeInfoModal({ isVisible, onClose }: { isVisible: boolean, onClo
         </Modal>
     );
 }
-
-import { ScrollView } from 'react-native';
 
 function CustomRepeatModal({ 
     isVisible, onClose, onConfirm, selectedDate, onShowInfo,

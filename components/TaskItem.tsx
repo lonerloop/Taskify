@@ -15,6 +15,10 @@ import { Task, useTaskStore, Priority } from '@/store/useTaskStore';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
+import { useRouter } from 'expo-router';
+
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+
 interface TaskItemProps {
   task: Task;
   onPress?: (task: Task) => void;
@@ -26,10 +30,6 @@ const priorityColors: Record<Priority, string> = {
   low: '#3b82f6',
   none: '#a1a1aa', // Zinc 400
 };
-
-import { useRouter } from 'expo-router';
-
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 export function TaskItem({ task, onPress }: TaskItemProps) {
   const colorScheme = useColorScheme() ?? 'light';

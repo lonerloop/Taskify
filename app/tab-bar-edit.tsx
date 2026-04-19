@@ -1,43 +1,43 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Platform, Modal, Pressable, Dimensions, StyleSheet } from 'react-native';
+import { BottomNavbar } from '@/components/BottomNavbar';
+import { TabItem, useTabStore } from '@/store/useTabStore';
+import {
+  AddSquareIcon,
+  ArrowDown01Icon,
+  ArrowLeft01Icon,
+  Calendar02Icon,
+  CalendarFavorite02Icon,
+  CheckmarkSquare02Icon,
+  DragDropVerticalIcon,
+  Grid02Icon,
+  RemoveSquareIcon,
+  Search01Icon,
+  Settings03Icon,
+  Target01Icon,
+  Timer01Icon
+} from '@hugeicons/core-free-icons';
+import {
+  HugeiconsIcon
+} from '@hugeicons/react-native';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { 
-  FadeInUp, 
-  FadeOutDown, 
-  LinearTransition, 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withTiming,
-  runOnJS,
+import React, { useCallback, useEffect, useState } from 'react';
+import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, {
   Easing,
+  Extrapolate,
+  FadeInUp,
+  FadeOutDown,
+  LinearTransition,
   SharedValue,
   interpolate,
-  Extrapolate,
-  useAnimatedScrollHandler
+  runOnJS,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming
 } from 'react-native-reanimated';
-import { Gesture, GestureDetector, GestureHandlerRootView, FlatList } from 'react-native-gesture-handler';
-import * as Haptics from 'expo-haptics';
-import { 
-  HugeiconsIcon 
-} from '@hugeicons/react-native';
-import { 
-  ArrowLeft01Icon,
-  RemoveSquareIcon,
-  AddSquareIcon,
-  CheckmarkSquare02Icon,
-  Calendar02Icon,
-  Timer01Icon,
-  Target01Icon,
-  CalendarFavorite02Icon,
-  Settings03Icon,
-  Search01Icon,
-  Grid02Icon,
-  ArrowDown01Icon,
-  DragDropVerticalIcon
-} from '@hugeicons/core-free-icons';
-import { useTabStore, TabItem } from '@/store/useTabStore';
-import { BottomNavbar } from '@/components/BottomNavbar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ICON_MAP: Record<string, any> = {
   CheckmarkSquare02Icon,
@@ -78,14 +78,14 @@ const PICKER_ITEM_HEIGHT = 48;
 const PickerItem = React.memo(({ item, index, scrollY }: { item: string, index: number, scrollY: any }) => {
   const animatedStyle = useAnimatedStyle(() => {
     const range = [(index - 2) * PICKER_ITEM_HEIGHT, (index - 1) * PICKER_ITEM_HEIGHT, index * PICKER_ITEM_HEIGHT];
-    
+
     const opacity = interpolate(
       scrollY.value,
       range,
       [0.3, 1, 0.3],
       Extrapolate.CLAMP
     );
-    
+
     const scale = interpolate(
       scrollY.value,
       range,
@@ -120,9 +120,9 @@ const PickerItem = React.memo(({ item, index, scrollY }: { item: string, index: 
 
   return (
     <Animated.View style={[{ height: PICKER_ITEM_HEIGHT, alignItems: 'center', justifyContent: 'center' }, animatedStyle]}>
-      <Text style={{ 
-        color: 'white', 
-        fontSize: 24, 
+      <Text style={{
+        color: 'white',
+        fontSize: 24,
         fontWeight: '700'
       }}>
         {item}
@@ -130,6 +130,7 @@ const PickerItem = React.memo(({ item, index, scrollY }: { item: string, index: 
     </Animated.View>
   );
 });
+PickerItem.displayName = 'PickerItem';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
@@ -153,24 +154,24 @@ const PickerColumn = React.memo(({ data, selectedValue, onValueChange }: { data:
 
   return (
     <View style={{ height: PICKER_ITEM_HEIGHT * 3, width: 80, overflow: 'hidden' }}>
-      <View style={{ 
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        height: PICKER_ITEM_HEIGHT * 0.8, 
-        backgroundColor: '#1c1c1e', 
+      <View style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: PICKER_ITEM_HEIGHT * 0.8,
+        backgroundColor: '#1c1c1e',
         opacity: 0.8,
         zIndex: 10,
         borderBottomWidth: 0.5,
         borderBottomColor: 'rgba(255,255,255,0.05)'
       }} pointerEvents="none" />
-      <View style={{ 
-        position: 'absolute', 
-        bottom: 0, 
-        left: 0, 
-        right: 0, 
-        height: PICKER_ITEM_HEIGHT * 0.8, 
+      <View style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: PICKER_ITEM_HEIGHT * 0.8,
         backgroundColor: '#1c1c1e',
         opacity: 0.8,
         zIndex: 10,
@@ -204,6 +205,7 @@ const PickerColumn = React.memo(({ data, selectedValue, onValueChange }: { data:
     </View>
   );
 });
+PickerColumn.displayName = 'PickerColumn';
 
 function TabCountPickerPopup({ isVisible, onClose, onConfirm, initialValue }: { isVisible: boolean, onClose: () => void, onConfirm: (val: number) => void, initialValue: number }) {
   const [selectedVal, setSelectedVal] = useState(initialValue.toString());
@@ -212,14 +214,14 @@ function TabCountPickerPopup({ isVisible, onClose, onConfirm, initialValue }: { 
   return (
     <Modal transparent visible={isVisible} animationType="fade">
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Pressable 
+        <Pressable
           style={{ ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)' }}
           onPress={onClose}
         />
         <GestureHandlerRootView style={{ width: '75%' }}>
           <View style={{ backgroundColor: '#1c1c1e', width: '100%', borderRadius: 24, padding: 24 }}>
             <Text style={{ color: 'white', fontSize: 22, fontWeight: '700', marginBottom: 24 }}>Max Tabs</Text>
-            
+
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 30 }}>
               <PickerColumn data={data} selectedValue={selectedVal} onValueChange={setSelectedVal} />
             </View>
@@ -239,15 +241,15 @@ function TabCountPickerPopup({ isVisible, onClose, onConfirm, initialValue }: { 
   );
 }
 
-const DraggableTabItem = React.memo(({ 
-  item, 
-  isEnabled, 
-  index, 
-  group, 
-  tabs, 
-  moveTab, 
-  enableTab, 
-  disableTab, 
+const DraggableTabItem = React.memo(({
+  item,
+  isEnabled,
+  index,
+  group,
+  tabs,
+  moveTab,
+  enableTab,
+  disableTab,
   isLast,
   onDragStart,
   onDragEnd,
@@ -276,25 +278,25 @@ const DraggableTabItem = React.memo(({
     })
     .onUpdate((event) => {
       selfTranslationY.value = event.translationY;
-      
+
       // ABSOLUTE SLOT TARGETING:
       // Calculate where the center of the dragged item is relative to the list top
       // (index * 72) is the item's original top.
       const fingerListCenterY = (index * ITEM_HEIGHT) + (ITEM_HEIGHT / 2) + event.translationY;
-      
+
       // Determine target slot by absolute grid boundary (snappy/discrete)
       const targetSlot = Math.max(0, Math.min(
-        Math.floor(fingerListCenterY / ITEM_HEIGHT), 
+        Math.floor(fingerListCenterY / ITEM_HEIGHT),
         group.length - 1
       ));
-      
+
       const newPositions = { ...positions.value };
       const currentMappedIndex = newPositions[item.id];
-      
+
       if (targetSlot !== currentMappedIndex) {
         // Trigger haptic ONLY on discrete slot crossing
         runOnJS(triggerHaptic)();
-        
+
         // Logical swap: update ALL item positions based on the new slot
         Object.keys(newPositions).forEach(id => {
           if (id === item.id) return;
@@ -311,7 +313,7 @@ const DraggableTabItem = React.memo(({
             }
           }
         });
-        
+
         newPositions[item.id] = targetSlot;
         positions.value = newPositions;
         currentSlot.value = targetSlot;
@@ -321,15 +323,15 @@ const DraggableTabItem = React.memo(({
       // Finger center calculation for final drop
       const fingerListCenterY = (index * ITEM_HEIGHT) + (ITEM_HEIGHT / 2) + event.translationY;
       const targetSlot = Math.max(0, Math.min(Math.floor(fingerListCenterY / ITEM_HEIGHT), group.length - 1));
-      
+
       const fromGlobal = tabs.findIndex(t => t.id === item.id);
       const toGlobal = tabs.findIndex(t => t.id === group[targetSlot].id);
-      
+
       const targetBaseOffset = (targetSlot - index) * ITEM_HEIGHT;
 
       // Final viscous glide to SET home
       selfTranslationY.value = withTiming(targetBaseOffset, { duration: 350, easing: MAGNETIC_DOCKING_EASING });
-      
+
       runOnJS(onDragEnd)(fromGlobal, toGlobal);
       runOnJS(triggerHaptic)();
     });
@@ -338,7 +340,7 @@ const DraggableTabItem = React.memo(({
   const hoverCardStyle = useAnimatedStyle(() => {
     // Relative to item's original render spot
     const y = isDragging ? selfTranslationY.value : 0;
-    
+
     return {
       transform: [
         { translateY: y },
@@ -364,7 +366,7 @@ const DraggableTabItem = React.memo(({
   const ghostSlotStyle = useAnimatedStyle(() => {
     const currentMappedPos = positions.value[item.id] ?? index;
     const baseOffset = (currentMappedPos - index) * ITEM_HEIGHT;
-    
+
     return {
       transform: [{ translateY: withTiming(baseOffset, { duration: 350, easing: MAGNETIC_DOCKING_EASING }) }],
       opacity: isDragging ? 0.45 : 0,
@@ -377,7 +379,7 @@ const DraggableTabItem = React.memo(({
     const currentMappedPos = positions.value[item.id] ?? index;
     const isMoving = currentMappedPos !== index;
     const baseOffset = (currentMappedPos - index) * ITEM_HEIGHT;
-    
+
     return {
       transform: [
         { translateY: withTiming(baseOffset, { duration: 400, easing: MAGNETIC_DOCKING_EASING }) },
@@ -397,10 +399,10 @@ const DraggableTabItem = React.memo(({
     <View style={{ height: ITEM_HEIGHT, width: '100%', zIndex: isDragging ? 20000 : 1 }}>
       {/* GHOST DROP ZONE (Fixed Grid Snapping) */}
       {isDragging && (
-        <Animated.View 
-          style={[ghostSlotStyle, { 
+        <Animated.View
+          style={[ghostSlotStyle, {
             position: 'absolute',
-            width: '100%', 
+            width: '100%',
             height: ITEM_HEIGHT - 6,
             borderRadius: 16,
             borderWidth: 1,
@@ -408,15 +410,15 @@ const DraggableTabItem = React.memo(({
             borderStyle: 'dashed',
             zIndex: 1,
             pointerEvents: 'none'
-          }]} 
+          }]}
         />
       )}
 
       {/* DRAGGABLE MAIN CARD */}
-      <Animated.View 
+      <Animated.View
         layout={isDragging ? undefined : HEAVY_LIQUID}
         style={[
-          isDragging ? hoverCardContainerStyle : neighborShiftStyle, 
+          isDragging ? hoverCardContainerStyle : neighborShiftStyle,
           { width: '100%', zIndex: isDragging ? 20000 : 2, height: ITEM_HEIGHT }
         ]}
       >
@@ -428,14 +430,14 @@ const DraggableTabItem = React.memo(({
             height: '100%',
           }}>
             <Animated.View style={iconOpacityStyle}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => isEnabled ? disableTab(item.id) : enableTab(item.id)}
                 style={{ padding: 10, marginRight: 8 }}
               >
-                <HugeiconsIcon 
-                  icon={isEnabled ? RemoveSquareIcon : AddSquareIcon} 
-                  size={22} 
-                  color={isEnabled ? '#ef4444' : '#10b981'} 
+                <HugeiconsIcon
+                  icon={isEnabled ? RemoveSquareIcon : AddSquareIcon}
+                  size={22}
+                  color={isEnabled ? '#ef4444' : '#10b981'}
                 />
               </TouchableOpacity>
             </Animated.View>
@@ -446,7 +448,7 @@ const DraggableTabItem = React.memo(({
 
             <View style={{ flex: 1, justifyContent: 'center' }}>
               <Text style={{ color: 'white', fontWeight: '700', fontSize: 15 }}>{item.title}</Text>
-              <Text 
+              <Text
                 style={{ color: '#71717a', fontSize: 12, marginTop: 2 }}
                 numberOfLines={1}
                 ellipsizeMode="tail"
@@ -463,10 +465,11 @@ const DraggableTabItem = React.memo(({
           </View>
         </Animated.View>
       </Animated.View>
-      
+
     </View>
   );
 });
+DraggableTabItem.displayName = 'DraggableTabItem';
 
 export default function TabBarEditScreen() {
   const router = useRouter();
@@ -476,7 +479,7 @@ export default function TabBarEditScreen() {
   const disabledTabs = tabs.filter(t => !t.enabled);
 
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
-  
+
   // High-fidelity Position Map (id -> slot_index)
   const positions = useSharedValue<Record<string, number>>({});
 
@@ -516,15 +519,15 @@ export default function TabBarEditScreen() {
           <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Tab Bar</Text>
         </View>
 
-        <ScrollView 
-          style={{ flex: 1, paddingHorizontal: 20 }} 
+        <ScrollView
+          style={{ flex: 1, paddingHorizontal: 20 }}
           showsVerticalScrollIndicator={false}
           scrollEnabled={!activeDragId}
           contentContainerStyle={{ paddingBottom: 120 }}
         >
           {/* Max Tabs Card */}
           <View style={{ marginBottom: 24, marginTop: 10 }}>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => {
                 setIsPickerVisible(true);
                 if (Platform.OS !== 'web') {
@@ -532,9 +535,9 @@ export default function TabBarEditScreen() {
                 }
               }}
               activeOpacity={0.7}
-              style={{ 
-                backgroundColor: '#121212', 
-                borderRadius: 15, 
+              style={{
+                backgroundColor: '#121212',
+                borderRadius: 15,
                 padding: 16,
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -571,7 +574,7 @@ export default function TabBarEditScreen() {
               <Text style={{ color: '#52525b', fontWeight: 'bold', marginBottom: 16, marginLeft: 16, textTransform: 'uppercase', fontSize: 11, letterSpacing: 1.5 }}>ACTIVE</Text>
               <View style={{ backgroundColor: '#121212', borderRadius: 15, overflow: 'hidden', marginBottom: 24 }}>
                 {enabledTabs.map((tab, idx) => (
-                  <DraggableTabItem 
+                  <DraggableTabItem
                     key={tab.id}
                     item={tab}
                     isEnabled={true}
@@ -597,7 +600,7 @@ export default function TabBarEditScreen() {
                 <Text style={{ color: '#52525b', fontWeight: 'bold', marginBottom: 16, marginLeft: 16, textTransform: 'uppercase', fontSize: 11, letterSpacing: 1.5 }}>DISABLED</Text>
                 <View style={{ backgroundColor: '#121212', borderRadius: 15, overflow: 'hidden', marginBottom: 32 }}>
                   {disabledTabs.map((tab, idx) => (
-                    <DraggableTabItem 
+                    <DraggableTabItem
                       key={tab.id}
                       item={tab}
                       isEnabled={false}

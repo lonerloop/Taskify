@@ -1,7 +1,7 @@
 import { TaskItem } from '@/components/TaskItem';
 import { TaskInfoModal } from '@/components/TaskInfoModal';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useTaskStore } from '@/store/useTaskStore';
+import { useTaskStore , Task } from '@/store/useTaskStore';
 import {
   ArrowRight01Icon,
   Menu01Icon,
@@ -14,7 +14,7 @@ import { DrawerActions } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { Task } from '@/store/useTaskStore';
+
 import Animated, { Easing, FadeIn, FadeOut, LinearTransition, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -192,7 +192,7 @@ export default function TasksScreen() {
                 resizeMode="contain"
               />
               <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white', marginBottom: 12 }}>No tasks today</Text>
-              <Text style={{ fontSize: 18, fontWeight: '500', color: '#71717a' }}>It's late, rest early</Text>
+              <Text style={{ fontSize: 18, fontWeight: '500', color: '#71717a' }}>It&apos;s late, rest early</Text>
             </View>
           )}
         </ScrollView>

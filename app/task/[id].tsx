@@ -21,7 +21,8 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const colorScheme = useColorScheme() ?? 'light';
+  const rawColorScheme = useColorScheme();
+  const colorScheme = rawColorScheme === 'dark' ? 'dark' : 'light';
   const { tasks, toggleTask, deleteTask, updateTask } = useTaskStore();
   
   const task = tasks.find(t => t.id === id);
